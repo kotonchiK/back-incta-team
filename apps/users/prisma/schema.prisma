@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "generated/prisma-users-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("USERS_DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  providers UsersProvider[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+}
+
+model Provider {
+  id String @id @default(uuid())
+  name String @unique
+  usersProvider UsersProvider[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model UsersProvider {
+  id String @id @default(uuid())
+  userLocalId String
+  user User @relation(fields: [userLocalId], references: [id], onDelete: Cascade)
+  providerLocalId String
+  provider Provider @relation(fields: [providerLocalId], references: [id])
+  sub String
+  email String
+  login String @unique
+  name String?
+  surname String?
+  password String
+  avatar String?
+  emailIsValidated Boolean
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  @@unique([providerLocalId, email], name: "providerEmailConstraint")
+  @@unique([providerLocalId, sub], name: "providerSubConstraint")
+}
